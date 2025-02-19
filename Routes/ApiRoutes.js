@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const path = require("path"); 
 
 const AuthApi = require('./AuthApi'); // ✅ Ensure this path is correct
 const ProductApi = require('./ProductApi'); // ✅ Ensure this path is correct

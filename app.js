@@ -25,6 +25,7 @@ connectDB();
 
 
 app.use('/api', ApiRoutes);
+app.use("/uploads", express.static("uploads"));
 
 app.listen(3000, () => console.log('--------------------------------------- port 3000 --------------------------------'));
     
