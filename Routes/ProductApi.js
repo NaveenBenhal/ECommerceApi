@@ -5,7 +5,7 @@ const ProductTypes = require('./../Models/ProductType')
 const SubProductModal = require('./../Models/SubProductType')
 const CreateProductModel = require('../Models/CreateProduct')
 const multer = require("multer");
-const path = require("path"); 
+const path = require("path");
 
 // Multer configuration
 const storage = multer.diskStorage({
@@ -21,7 +21,7 @@ const upload = multer({
     fileFilter: (req, file, cb) => {
         const allowedTypes = /jpeg|jpg|png/;
         const isValid = allowedTypes.test(path.extname(file.originalname).toLowerCase()) &&
-                        allowedTypes.test(file.mimetype);
+            allowedTypes.test(file.mimetype);
 
         if (isValid) {
             cb(null, true);
@@ -47,8 +47,12 @@ router.get('/getProductTypes', async (req, res) => {
 router.get('/getSubProductTypes', async (req, res) => {
     try {
         console.log('getSubProductTypes req.query', req.query);
-
-        const data = await SubProductModal.find({ ProductTypeID: req.query.id })
+        let data = []
+        if (Number(req.query.id) != 0) {
+            data = await SubProductModal.find({ ProductTypeID: req.query.id })
+        } else {
+            data = await SubProductModal.find();
+        }
         if (!data) {
             return res.status(404).json({ message: 'No data found', status: 404, data: [] });  // Send 404 Not Found error if no data is found
         }
@@ -102,6 +106,32 @@ router.post("/createProduct", upload.single("ProductImage"), async (req, res) =>
     }
 });
 
+
+router.post('/getProducts', async (req, res) => {
+    try {
+        console.log('getProducts req.body', req.body);
+        let resultData = []
+        if (req.body.userId) {
+            resultData = await CreateProductModel.find({ createdBy: req.body.userId })
+        } else {
+            resultData = await CreateProductModel.find()
+        }
+
+        if (req.body.productId) {
+            resultData = await resultData.filter((item) => item.productTypeId._id == req.body.productId)
+        }
+
+        if (req.body.subProductId) {
+            resultData = await resultData.filter((item) => item.subProductId._id == req.body.subProductId)
+        }   
+
+        if (resultData) {
+            return res.status(200).json({ message: "Data found", status: 200, data: resultData })
+        }
+    } catch (err) {
+        return res.status(err.status).json({ message: err.message, status: err.status })
+    }
+})
 
 
 
